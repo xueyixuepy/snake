@@ -1,0 +1,10 @@
+# 忽略编译生成的文件
+*.exe
+*.o
+*.out
+*.a
+*.so
+*.dll
+# 忽略 IDE 配置文件
+.vscode/
+.idea/
