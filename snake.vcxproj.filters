@@ -18,5 +18,19 @@
     <ClCompile Include="mainC.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="aboutSnake.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="aboutFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="aboutSnake.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aboutFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
