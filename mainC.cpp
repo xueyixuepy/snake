@@ -8,33 +8,53 @@ void keyToMove(char key,int* moveTo)
 {
 	
 	switch (key) {
-	case 'w':moveTo[0] = 0, moveTo[1] = -1; break;
-	case 's':moveTo[0] = 0, moveTo[1] = 1; break;
-	case 'a':moveTo[0] = -1, moveTo[1] = 0; break;
-	case 'd':moveTo[0] = 1, moveTo[1] = 0; break;
+	case 'w':if (moveTo[1] != 1)moveTo[0] = 0, moveTo[1] = -1; break;
+	case 's':
+		if ( moveTo[1] != -1)
+		moveTo[0] = 0, moveTo[1] = 1; 
+		break;
+	case 'a':	if (moveTo[0] != 1)moveTo[0] = -1, moveTo[1] = 0; break;
+	case 'd':if (moveTo[0] != -1)moveTo[0] = 1, moveTo[1] = 0; break;
 	}
 }
+
 int main()
 {
 	int moveTo[2] = { 0 };
 	createMap(40, 20);
 	snakeHead xiaoshe(1, 1);
-	int speed = 1;
 	bool isEat = 0;
 	addFood(8, 10);
 	addFood(5, 10);
+	addFood(6, 10);
+	addFood(6, 8);
 	while (true)
 	{
 		if (_kbhit()) {
 			char key = _getch();
+			if (key == '=') {
+				xiaoshe.speedUp();
+			}
+			else if (key == '-')
+			{
+				xiaoshe.speedDown();
+			}
 			keyToMove(key, moveTo);
 			if (key == 'q') break; // °´ q ÍË³ö
 		}
-		xiaoshe.move(moveTo[0], moveTo[1], 1);
+
+		if (xiaoshe.move(moveTo[0], moveTo[1], 1))
+		{
+			xiaoshe.printSnake();
+			showMap();
+			cout << xiaoshe.score;
+			break;
+		}
 		xiaoshe.printSnake();
 
 		showMap();
-		Sleep(1000); 
+		cout << xiaoshe.score;
+		Sleep(xiaoshe.speed); 
 	}
 	return 0;
 }

@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <random> 
 using namespace std;
 void createMap(int width, int height);
 void showMap();
@@ -24,6 +25,8 @@ public:
     int speed;
     std::string color;
     char headChar;
+    int score;
+    int foodScore;
     snakeBodyNode* bodyNode;
 
     // 构造函数
@@ -31,7 +34,10 @@ public:
 
     // 成员函数
     void initSnake();
-    void move(int xToword, int yToword, int speed);
+    int move(int xToword, int yToword, int speed);
     void printSnake();
+    void speedUp();
+    void speedDown();
 };
-void addFood(int x, int y);
+int addFood(int x, int y);
+void randomAddFood(int width, int height);

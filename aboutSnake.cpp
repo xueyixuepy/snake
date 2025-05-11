@@ -21,23 +21,36 @@ map<string, string> snakeColor = {
 snakeBodyNode::snakeBodyNode()
 	: next(nullptr), bodyChar('*') {}
 snakeHead::snakeHead(int x, int y)
-	: headX(x), headY(y), speed(1),
+	: headX(x), headY(y), speed(160),foodScore(4),score(0),
 	color("green"), bodyNode(nullptr), headChar('#') {}
 
 // 初始化蛇身（原函数为空）
 void snakeHead::initSnake() {
 	// 可在此添加初始化逻辑
+	headChar = '#';
 }
 
 // 移动函数实现
-void snakeHead::move(int xToword, int yToword, int speed) {
+int snakeHead::move(int xToword, int yToword, int speed) {
 	bool isEat = 0;
 	int temX = headX;
 	int temY = headY;
-	headX += xToword * speed;
-	headY += yToword * speed;
-	if (gameMap[headY][headX] == '$')
-		isEat = 1;
+	headX += xToword ;
+	headY += yToword ;
+	if (xToword == 0 && yToword == 0)
+	{
+		return 0;
+	}
+	switch (gameMap[headY][headX])
+	{
+	case '$':isEat = 1; score += foodScore; randomAddFood(gameMapSize[0], gameMapSize[1]); break;
+		case '+':
+		case '-':
+		case '#':
+		case '*':
+		case '|':headChar = 'X'; return 1; break;
+	}
+	
 	if (bodyNode != nullptr) {
 		snakeBodyNode* linkBody = bodyNode;
 		swap(linkBody->x, temX);
@@ -60,6 +73,7 @@ void snakeHead::move(int xToword, int yToword, int speed) {
 			bodyNode->y = headY - yToword; 
 		}
 	}
+	return 0;
 }
 
 // 打印蛇到地图
@@ -74,11 +88,28 @@ void snakeHead::printSnake() {
 
 
 	// 更新头部和身体位置
-	gameMap[headY][headX] = headChar;
+	//gameMap[headY][headX] = headChar;
 	snakeBodyNode* linkBody = bodyNode;
 	while (linkBody != nullptr) {
 		gameMap[linkBody->y][linkBody->x] = linkBody->bodyChar;
 		linkBody = linkBody->next;
+	}
+	gameMap[headY][headX] = headChar;
+}
+void snakeHead::speedUp()
+{
+	if (speed >= 80)
+	{
+		speed -= 40;
+		foodScore += 2;
+	}
+}
+void snakeHead::speedDown()
+{
+	if (speed <= 320&&foodScore>2)
+	{
+		speed += 20;
+		foodScore -= 2;
 	}
 }
 
@@ -132,7 +163,27 @@ void showMap()
 	}
 }
 
-void addFood(int x, int y)
+int addFood(int x, int y)
 {
-	gameMap[y][x] = '$';
+	if (gameMap[y][x] == ' ')
+	{
+		gameMap[y][x] = '$';
+		return 1;
+	}
+	else
+		return 0;
+}
+void randomAddFood(int width, int height)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd()); 
+
+	std::uniform_int_distribution<> xRandom(1, width+1);
+	std::uniform_int_distribution<> yRandom(1, height+1);
+	int x, y;
+	// 3. 生成随机数
+	do {
+		 x = xRandom(gen);
+		 y = yRandom(gen);
+	} while (!addFood(x, y));
 }
