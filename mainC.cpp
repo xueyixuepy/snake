@@ -31,6 +31,7 @@ void keyToMove(char key,int* moveTo)
 int main()
 {
 	int moveTo[2] = { 0 };
+	int isDead = 0;
 	createMap(40, 20);
 	bool isEat = 0;
 	char key;
@@ -65,11 +66,16 @@ int main()
 				xiaoshe.speedDown();
 			}
 			keyToMove(key, moveTo);
-			if (key == 'q') break; // 按 q 退出
+			if (key == 'q')
+			{
+				isDead = 1;
+				//break;
+			} // 按 q 退出
 		}
 		//如果小蛇撞死了
-		if (xiaoshe.move(moveTo[0], moveTo[1], 1))
+		if (xiaoshe.move(moveTo[0], moveTo[1], 1)||isDead ==1)
 		{
+			isDead = 0;
 			xiaoshe.printSnake();
 			showMap();
 			std::cout << "得分:" << xiaoshe.score << "          " << "相对速度:" << 1.0 / xiaoshe.speed * 1000;
