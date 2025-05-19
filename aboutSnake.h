@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include "aboutFile.h"
 #include <random> 
 using namespace std;
 void createMap(int width, int height);
@@ -41,3 +42,7 @@ public:
 };
 int addFood(int x, int y);
 void randomAddFood(int width, int height);
+int welcomeToGame();
+int gameOver(int how);
+void clearMap();
+void clearInputBuffer();

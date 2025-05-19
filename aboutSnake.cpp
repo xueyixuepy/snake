@@ -8,6 +8,7 @@ char edge[9] = {
 //左是纵坐标，右是横坐标
 vector<vector<char>> gameMap;
 int gameMapSize[2];
+
 map<string, string> snakeColor = {
 		{"black",      "\033[30m"},
 		{"red",        "\033[31m"},
@@ -17,6 +18,7 @@ map<string, string> snakeColor = {
 		{"magenta",    "\033[35m"},
 		{"cyan",       "\033[36m"},
 		{"white",      "\033[37m"},
+		{"reset",		"\033[0m"}
 };
 snakeBodyNode::snakeBodyNode()
 	: next(nullptr), bodyChar('*') {}
@@ -24,15 +26,41 @@ snakeHead::snakeHead(int x, int y)
 	: headX(x), headY(y), speed(160),foodScore(4),score(0),
 	color("green"), bodyNode(nullptr), headChar('#') {}
 
-// 初始化蛇身（原函数为空）
+
+
+void clearInputBuffer() {
+	std::cin.clear(); // 清除错误状态（如类型不匹配导致的 failbit）
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+//初始化小蛇
 void snakeHead::initSnake() {
-	// 可在此添加初始化逻辑
+
 	headChar = '#';
+	headX = 13;
+	headY = 7;
+	int i;
+	bodyNode = new snakeBodyNode;
+	snakeBodyNode* link = bodyNode;
+	bodyNode->x = 12, bodyNode->y = 7;
+	speed = 160;
+	foodScore = 4;
+	score = 0;
+	for (i = 0; i < 5; i++)
+	{
+		link->next = new snakeBodyNode;
+		link = link->next;
+		link->x = 11 - i;
+		link->y = 7;
+	
+	}
+	printSnake();
+	randomAddFood(gameMapSize[0], gameMapSize[1]);
 }
 
 // 移动函数实现
 int snakeHead::move(int xToword, int yToword, int speed) {
-	bool isEat = 0;
+	bool isEat = 0;//是否吃了
 	int temX = headX;
 	int temY = headY;
 	headX += xToword ;
@@ -43,7 +71,7 @@ int snakeHead::move(int xToword, int yToword, int speed) {
 	}
 	switch (gameMap[headY][headX])
 	{
-	case '$':isEat = 1; score += foodScore; randomAddFood(gameMapSize[0], gameMapSize[1]); break;
+		case '$':isEat = 1; score += foodScore; randomAddFood(gameMapSize[0], gameMapSize[1]); speedUp(); break;
 		case '+':
 		case '-':
 		case '#':
@@ -155,12 +183,45 @@ void createMap(int width,int height)
 void showMap()
 {
 	int i, j;
-	for (i = 0; i < gameMapSize[1]+2 ; i++)
+	for (i = 0; i < 8; i++)
 	{
-		for (j = 0; j < gameMapSize[0]+2 ; j++)
-			cout << gameMap[i][j];
 		cout << endl;
 	}
+	for (i = 0; i < gameMapSize[1]+2 ; i++)
+	{
+		for (j = 0; j < gameMapSize[0] + 2; j++)
+		{
+			switch (gameMap[i][j])
+			{
+			case '#':cout <<snakeColor["blue"] << gameMap[i][j]<<snakeColor["reset"]; break;
+			case '*':cout << snakeColor["yellow"] << gameMap[i][j] << snakeColor["reset"]; break;
+			case '$':cout << snakeColor["green"] << gameMap[i][j] << snakeColor["reset"]; break;
+			case 'X':cout << snakeColor["red"] << gameMap[i][j] << snakeColor["reset"]; break;
+			case '+':
+			case '|':
+			case '-':
+			case ' ':
+				cout << gameMap[i][j]; break;
+			}
+
+			
+		}
+		cout << endl;
+	}
+}
+
+void clearMap()
+{
+	int i, j;
+	for (i = 0; i < gameMapSize[1] + 2; i++)
+	{
+		for (j = 0; j < gameMapSize[0] + 2; j++)
+		{
+			gameMap[i][j] = ' ';
+		}
+	}
+	gameMap.clear();
+	createMap(gameMapSize[0], gameMapSize[1]);
 }
 
 int addFood(int x, int y)
@@ -181,9 +242,118 @@ void randomAddFood(int width, int height)
 	std::uniform_int_distribution<> xRandom(1, width+1);
 	std::uniform_int_distribution<> yRandom(1, height+1);
 	int x, y;
-	// 3. 生成随机数
+
 	do {
 		 x = xRandom(gen);
 		 y = yRandom(gen);
 	} while (!addFood(x, y));
+}
+
+int welcomeToGame()
+{
+	string choice;
+	int c_int=0;
+	int score;
+	int i, j;
+	//绘制等大菜单
+	cout << '+';
+	for (i = 0; i < gameMapSize[0]; i++)
+	{
+		cout << '-';
+	}
+	cout << '+';
+	for (i = 0; i < 7; i++)
+	{
+		cout << endl;
+	}
+	cout << "        " << "******#" << endl;
+	for (i = 0; i < 4; i++)
+	{
+		cout << endl;
+	}
+	cout <<"     "<< "1.进入游戏  2.显示最高分  3.退出" << endl;
+	for (i = 0; i < 7; i++)
+	{
+		cout << endl;
+	}
+	cout << '+';
+	for (i = 0; i < gameMapSize[0]; i++)
+	{
+		cout << '-';
+	}
+	cout << '+'<<endl;
+
+	while (true) {
+		cout << "请选择：";
+		cin >> choice;
+		if (choice.length() == 1 && (choice[0] == '1' || choice[0] == '2' || choice[0] == '3'))
+		{
+			c_int = choice[0] - '0';
+			switch (c_int) {
+			case 1:return 1; break;
+			case 2:
+				cout << "最高分为：" << getHighestScore() << endl;
+				break;
+			case 3:return 0; break;
+			}
+		}
+	}
+}
+int gameOver(int how)
+{
+	string choice;
+	int c_int=0;
+	int score;
+	int i, j;
+	//绘制等大菜单
+	cout << '+';
+	for (i = 0; i < gameMapSize[0]; i++)
+	{
+		cout << '-';
+	}
+	cout << '+';
+	for (i = 0; i < 7; i++)
+	{
+		cout << endl;
+	}
+	if (how <= 0)
+	{
+		cout << "     创纪录啦！最高分被你刷新啦，真棒！！！";
+	}
+	else
+	{
+		cout << "     继续努力吧~你离最高分还差:"<<how;
+	}
+	for (i = 0; i < 4; i++)
+	{
+		cout << endl;
+	}
+	cout << "     " << "1.重玩  2.说明  3.退出" << endl;
+	for (i = 0; i < 7; i++)
+	{
+		cout << endl;
+	}
+	cout << '+';
+	for (i = 0; i < gameMapSize[0]; i++)
+	{
+		cout << '-';
+	}
+	cout << '+' << endl;
+
+	while (true) {
+		cout << "请选择：";
+		cin >> choice;
+		if (choice.length() == 1 && (choice[0] == '1' || choice[0] == '2' || choice[0] == '3'))
+		{
+			c_int = choice[0] - '0';
+			switch (c_int) {
+			case 1:return 1; break;
+			case 2:
+				cout << "说明:这是一个贪吃蛇游戏" << endl;
+				break;
+			case 3:return 0; break;
+			}
+			
+		}
+	}
 }
